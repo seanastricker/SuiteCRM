@@ -6,13 +6,16 @@ cache/*
 upload/*
 !upload/index.html
 # Ignore some files and directories from the custom directory.
-custom/
+# custom/  # COMMENTED OUT - Allow tracking custom development features
 custom/history/*
 custom/blowfish/*
 custom/modulebuilder/*
 custom/working/*
-custom/modules/*/Ext/
+# custom/modules/*/Ext/  # COMMENTED OUT - Allow tracking custom extensions
 custom/modules/unified_search_modules_display.php
+# Additional custom ignores for sensitive/auto-generated files
+custom/application/Ext/*/cache.php
+custom/application/Ext/LogicHooks/logichooks.ext.php
 # Ignore AOD indexes
 modules/AOD_Index/Index/*
 install/status.json
@@ -104,7 +107,7 @@ tests/_output/*
 BrowserStackLocal
 browserstack.err
 cache/
-custom/**/
+# custom/**/  # COMMENTED OUT - Allow tracking custom development features
 .sass-cache/
 
 # Ignore testing environment
