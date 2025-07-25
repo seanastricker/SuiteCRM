@@ -2,11 +2,6 @@
  //WARNING: The contents of this file are auto-generated
 
 
-$entry_point_registry['debug_parents'] = array(
-    'file' => 'custom/debug_parents.php',
-    'auth' => true,
-); 
-
 /**
  * Entry Point Registration for Feature 3: Quick Incident Reporting
  * 
