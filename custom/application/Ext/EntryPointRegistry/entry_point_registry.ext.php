@@ -2,8 +2,8 @@
  //WARNING: The contents of this file are auto-generated
 
 
-$entry_point_registry['filter_debug'] = array(
-    'file' => 'custom/filter_debug.php',
+$entry_point_registry['debug_parents'] = array(
+    'file' => 'custom/debug_parents.php',
     'auth' => true,
 ); 
 
@@ -16,6 +16,18 @@ $entry_point_registry['filter_debug'] = array(
 
 $entry_point_registry['incident_reporting'] = array(
     'file' => 'custom/incident_reporting_dashboard.php',
+    'auth' => true,
+); 
+
+/**
+ * Entry Point Registration for Feature 4: Basic Parent Notification System
+ * 
+ * Registers the parent_communication entry point to make the dashboard accessible
+ * via: index.php?entryPoint=parent_communication
+ */
+
+$entry_point_registry['parent_communication'] = array(
+    'file' => 'custom/parent_communication_dashboard.php',
     'auth' => true,
 ); 
 

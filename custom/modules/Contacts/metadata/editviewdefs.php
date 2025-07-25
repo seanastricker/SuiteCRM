@@ -131,6 +131,106 @@ array (
             'label' => 'LBL_VOLUNTEER_STATUS',
           ),
         ),
+        5 => 
+        array (
+          0 => 
+          array (
+            'name' => 'children_names_c',
+            'comment' => 'Names of children enrolled in programs',
+            'label' => 'LBL_CHILDREN_NAMES',
+          ),
+          1 => 
+          array (
+            'name' => 'children_ages_c',
+            'comment' => 'Ages of children (e.g., "8, 12" for multiple children)',
+            'label' => 'LBL_CHILDREN_AGES',
+          ),
+        ),
+        6 => 
+        array (
+          0 => 
+          array (
+            'name' => 'programs_enrolled_c',
+            'comment' => 'Programs children are enrolled in',
+            'label' => 'LBL_PROGRAMS_ENROLLED',
+          ),
+          1 => 
+          array (
+            'name' => 'emergency_contact_name_c',
+            'comment' => 'Emergency contact person name',
+            'label' => 'LBL_EMERGENCY_CONTACT_NAME',
+          ),
+        ),
+        7 => 
+        array (
+          0 => 
+          array (
+            'name' => 'emergency_contact_phone_c',
+            'comment' => 'Emergency contact phone number',
+            'label' => 'LBL_EMERGENCY_CONTACT_PHONE',
+          ),
+          1 => 
+          array (
+            'name' => 'emergency_contact_relation_c',
+            'comment' => 'Relationship to emergency contact',
+            'label' => 'LBL_EMERGENCY_CONTACT_RELATION',
+          ),
+        ),
+        8 => 
+        array (
+          0 => 
+          array (
+            'name' => 'preferred_communication_c',
+            'comment' => 'Preferred method of communication',
+            'label' => 'LBL_PREFERRED_COMMUNICATION',
+          ),
+          1 => 
+          array (
+            'name' => 'communication_frequency_c',
+            'comment' => 'How often parent wants to receive communications',
+            'label' => 'LBL_COMMUNICATION_FREQUENCY',
+          ),
+        ),
+        9 => 
+        array (
+          0 => 
+          array (
+            'name' => 'email_notifications_c',
+            'comment' => 'Receive email notifications',
+            'label' => 'LBL_EMAIL_NOTIFICATIONS',
+          ),
+          1 => 
+          array (
+            'name' => 'sms_notifications_c',
+            'comment' => 'Receive SMS notifications (future feature)',
+            'label' => 'LBL_SMS_NOTIFICATIONS',
+          ),
+        ),
+        10 => 
+        array (
+          0 => 
+          array (
+            'name' => 'parent_notes_c',
+            'comment' => 'Additional notes about parent or children',
+            'label' => 'LBL_PARENT_NOTES',
+          ),
+          1 => 
+          array (
+            'name' => 'medical_info_c',
+            'comment' => 'Important medical information or allergies',
+            'label' => 'LBL_MEDICAL_INFO',
+          ),
+        ),
+        11 => 
+        array (
+          0 => 
+          array (
+            'name' => 'pickup_authorization_c',
+            'comment' => 'List of people authorized to pick up children',
+            'label' => 'LBL_PICKUP_AUTHORIZATION',
+          ),
+          1 => '',
+        ),
       ),
       'lbl_contact_information' => 
       array (
