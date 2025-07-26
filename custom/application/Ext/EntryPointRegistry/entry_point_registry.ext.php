@@ -41,6 +41,20 @@ $entry_point_registry['save_incident'] = array(
 ); 
 
 /**
+ * Feature 4: Basic Parent Notification System
+ * Entry point registration for parent email sending
+ */
+
+if (!defined('sugarEntry') || !sugarEntry) {
+    die('Not A Valid Entry Point');
+}
+
+$entry_point_registry['send_parent_email'] = array(
+    'file' => 'custom/send_parent_email.php',
+    'auth' => true,
+); 
+
+/**
  * Volunteer Matching Dashboard Entry Point Registration
  * 
  * This registers a custom entry point for accessing the volunteer

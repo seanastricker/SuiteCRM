@@ -1,0 +1,116 @@
+/**
+ * Feature 4: Basic Parent Notification System
+ * CSS styles for the ParentCommunication module
+ */
+
+.parent-communication-dashboard {
+    margin: 20px 0;
+}
+
+.parent-stats {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.email-form-container {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.parent-card {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: white;
+    transition: all 0.2s;
+}
+
+.parent-card:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.parent-card.selected {
+    border-color: #007bff;
+    background-color: #f8f9ff;
+}
+
+.parent-card.email-enabled {
+    border-left: 4px solid #28a745;
+}
+
+.parent-card.email-disabled {
+    border-left: 4px solid #dc3545;
+}
+
+.parent-meta {
+    font-size: 12px;
+    color: #666;
+    margin-top: 10px;
+}
+
+.communication-card {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 8px;
+    background: white;
+}
+
+.communication-meta {
+    font-size: 11px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.selected-count {
+    background: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.template-preview {
+    max-height: 200px;
+    overflow-y: auto;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 10px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+}
+
+.stat-number {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+} 
