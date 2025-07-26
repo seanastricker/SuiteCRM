@@ -70,6 +70,8 @@ $mod_strings = array(
     // Action labels
     'LBL_CHECK_OUT' => 'Check Out',
     'LBL_RETURN' => 'Return',
+    'LBL_MAINTENANCE' => 'Maintenance',
+    'LBL_RETURN_FROM_MAINTENANCE' => 'Return from Maintenance',
     'LBL_VIEW_DETAILS' => 'View Details',
     'LBL_EDIT' => 'Edit',
     'LBL_DELETE' => 'Delete',
@@ -91,6 +93,7 @@ $mod_strings = array(
     'LBL_FILTER_BY_TYPE' => 'Filter by Type',
     'LBL_FILTER_BY_PROGRAM' => 'Filter by Program',
     'LBL_FILTER_BY_CONDITION' => 'Filter by Condition',
+    'LBL_FILTER_BY_LOCATION' => 'Filter by Location',
     'LBL_SHOW_OVERDUE_ONLY' => 'Show Overdue Only',
     'LBL_SHOW_AVAILABLE_ONLY' => 'Show Available Only',
     
@@ -125,7 +128,7 @@ $mod_strings = array(
     // Equipment statuses
     'LBL_AVAILABLE' => 'Available',
     'LBL_CHECKED_OUT' => 'Checked Out',
-    'LBL_MAINTENANCE' => 'In Maintenance',
+    'LBL_IN_MAINTENANCE' => 'In Maintenance',
     'LBL_RETIRED' => 'Retired',
     
     // Programs

@@ -23,6 +23,16 @@ $entry_point_registry['equipment_return'] = array(
     'auth' => true,
 );
 
+$entry_point_registry['equipment_maintenance'] = array(
+    'file' => 'custom/equipment_maintenance.php',
+    'auth' => true,
+);
+
+$entry_point_registry['test_maintenance_entry'] = array(
+    'file' => 'custom/test_maintenance_entry.php',
+    'auth' => true,
+);
+
 $entry_point_registry['equipment_notifications'] = array(
     'file' => 'custom/equipment_notifications.php',
     'auth' => true,
@@ -30,6 +40,11 @@ $entry_point_registry['equipment_notifications'] = array(
 
 $entry_point_registry['equipment_reports'] = array(
     'file' => 'custom/equipment_reports.php',
+    'auth' => true,
+);
+
+$entry_point_registry['equipment_full_report'] = array(
+    'file' => 'custom/equipment_full_report.php',
     'auth' => true,
 );
 

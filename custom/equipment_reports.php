@@ -35,9 +35,74 @@ try {
     // Get report type from request
     $report_type = $_GET['type'] ?? 'all';
     $period_days = (int)($_GET['period'] ?? 30);
+    $format = $_GET['format'] ?? 'json';
     
     // Load Equipment helper
     require_once('modules/Equipment/EquipmentHelper.php');
+    
+    // Handle CSV export format
+    if ($format === 'csv' && $report_type === 'all') {
+        // Set CSV headers
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="equipment_data_' . date('Y-m-d') . '.csv"');
+        header('Cache-Control: no-cache, must-revalidate');
+        
+        // Clean output buffer
+        ob_clean();
+        
+        // Get equipment data
+        $equipment = EquipmentHelper::getEquipment();
+        $dropdown_options = EquipmentHelper::getDropdownOptions();
+        
+        // Open output stream
+        $output = fopen('php://output', 'w');
+        
+        // Add BOM for UTF-8
+        fwrite($output, "\xEF\xBB\xBF");
+        
+        // CSV Headers
+        fputcsv($output, array(
+            'Equipment Name',
+            'Type',
+            'Status', 
+            'Condition',
+            'Current Location',
+            'Brand',
+            'Model',
+            'Serial Number',
+            'Purchase Date',
+            'Purchase Price',
+            'Checked Out By',
+            'Due Date',
+            'Program Association',
+            'Description',
+            'Date Added'
+        ));
+        
+        // CSV Data
+        foreach ($equipment as $item) {
+            fputcsv($output, array(
+                $item['name'],
+                $dropdown_options['equipment_types'][$item['equipment_type']] ?? $item['equipment_type'],
+                $dropdown_options['equipment_statuses'][$item['checkout_status']] ?? $item['checkout_status'],
+                $dropdown_options['equipment_conditions'][$item['condition_status']] ?? $item['condition_status'],
+                $item['current_location'] ?: '',
+                $item['brand'] ?: '',
+                $item['model'] ?: '',
+                $item['serial_number'] ?: '',
+                $item['purchase_date'] ?: '',
+                $item['purchase_price'] ?: '',
+                $item['checked_out_by'] ?: '',
+                $item['due_date'] ?: '',
+                $item['program_association'] ?: '',
+                $item['description'] ?: '',
+                $item['date_entered'] ?: ''
+            ));
+        }
+        
+        fclose($output);
+        exit();
+    }
     
     $response = array(
         'success' => true,

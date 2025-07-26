@@ -39,16 +39,51 @@ class EquipmentViewEquipmentdashboard extends SugarView
         $reports = EquipmentHelper::generateReports();
         $usage_stats = EquipmentHelper::getUsageStatistics(30);
         
+        // Get unique locations for location filter
+        $unique_locations = $this->getUniqueLocations();
+        
         // Debug: Log equipment count
         error_log("Equipment Dashboard Debug: Found " . count($equipment) . " equipment items");
         
-        echo $this->renderDashboard($summary, $equipment, $dropdown_options, $reports, $usage_stats, $mod_strings);
+        echo $this->renderDashboard($summary, $equipment, $dropdown_options, $reports, $usage_stats, $unique_locations, $mod_strings);
+    }
+    
+    /**
+     * Get unique locations from equipment database
+     */
+    private function getUniqueLocations()
+    {
+        global $db;
+        $locations = array();
+        
+        try {
+            $query = "SELECT DISTINCT current_location 
+                     FROM equipment 
+                     WHERE deleted = 0 
+                     AND current_location IS NOT NULL 
+                     AND current_location != '' 
+                     ORDER BY current_location";
+            
+            $result = $db->query($query);
+            if ($result) {
+                while ($row = $db->fetchByAssoc($result)) {
+                    $location = trim($row['current_location']);
+                    if (!empty($location)) {
+                        $locations[] = $location;
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            error_log("Error getting unique locations: " . $e->getMessage());
+        }
+        
+        return $locations;
     }
     
     /**
      * Render the complete dashboard HTML
      */
-    private function renderDashboard($summary, $equipment, $dropdown_options, $reports, $usage_stats, $mod_strings)
+    private function renderDashboard($summary, $equipment, $dropdown_options, $reports, $usage_stats, $unique_locations, $mod_strings)
     {
         ob_start();
         ?>
@@ -176,10 +211,14 @@ class EquipmentViewEquipmentdashboard extends SugarView
                 }
                 
                 .filter-group select {
-                    padding: 8px 12px;
+                    padding: 10px 12px;
                     border: 1px solid #ddd;
                     border-radius: 4px;
                     font-size: 14px;
+                    height: 40px;
+                    line-height: 1.4;
+                    vertical-align: middle;
+                    box-sizing: border-box;
                 }
                 
                 .btn-group {
@@ -221,6 +260,15 @@ class EquipmentViewEquipmentdashboard extends SugarView
                 
                 .btn-success:hover {
                     background: #229954;
+                }
+                
+                .btn-warning {
+                    background: #f39c12;
+                    color: white;
+                }
+                
+                .btn-warning:hover {
+                    background: #e67e22;
                 }
                 
                 .btn-danger {
@@ -539,7 +587,7 @@ class EquipmentViewEquipmentdashboard extends SugarView
                 <!-- Equipment Inventory Section -->
                 <div class="dashboard-section">
                     <div class="section-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <h2 class="section-title" id="equipment-count-title"><?php echo $mod_strings['LBL_EQUIPMENT_INVENTORY']; ?> (<?php echo count($equipment); ?>)</h2>
+                        <h2 class="section-title" id="equipment-count-title"><?php echo $mod_strings['LBL_EQUIPMENT_INVENTORY']; ?> (<span id="equipment-count" data-original-count="<?php echo $summary['total_equipment']; ?>"><?php echo $summary['total_equipment']; ?></span>)</h2>
                         <div class="btn-group" style="margin-left: 15px;">
                             <a href="index.php?entryPoint=create_equipment_form" class="btn btn-success" style="text-decoration: none; color: white; margin-right: 10px;">
                                 ➕ Create Equipment
@@ -587,6 +635,24 @@ class EquipmentViewEquipmentdashboard extends SugarView
                                         </select>
                                     </div>
                                     <div class="filter-group">
+                                        <label for="condition-filter"><?php echo $mod_strings['LBL_FILTER_BY_CONDITION']; ?></label>
+                                        <select name="condition" id="condition-filter">
+                                            <option value="">All Conditions</option>
+                                            <?php foreach ($dropdown_options['equipment_conditions'] as $key => $value): ?>
+                                                <option value="<?php echo htmlspecialchars($key); ?>"><?php echo htmlspecialchars($value); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="filter-group">
+                                        <label for="location-filter"><?php echo $mod_strings['LBL_FILTER_BY_LOCATION']; ?></label>
+                                        <select name="location" id="location-filter">
+                                            <option value="">All Locations</option>
+                                            <?php foreach ($unique_locations as $location): ?>
+                                                <option value="<?php echo htmlspecialchars($location); ?>"><?php echo htmlspecialchars($location); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="filter-group">
                                         <div class="btn-group">
                                             <button type="submit" class="btn btn-primary"><?php echo $mod_strings['LBL_APPLY_FILTERS']; ?></button>
                                             <button type="button" class="btn btn-secondary" onclick="clearFilters()"><?php echo $mod_strings['LBL_CLEAR_FILTERS']; ?></button>
@@ -610,7 +676,9 @@ class EquipmentViewEquipmentdashboard extends SugarView
                                              data-equipment-id="<?php echo htmlspecialchars($item['id']); ?>"
                                              data-status="<?php echo htmlspecialchars($item['checkout_status']); ?>"
                                              data-type="<?php echo htmlspecialchars($item['equipment_type']); ?>"
-                                             data-program="<?php echo htmlspecialchars($item['program_association']); ?>">
+                                             data-program="<?php echo htmlspecialchars($item['program_association']); ?>"
+                                             data-condition="<?php echo htmlspecialchars($item['condition_status']); ?>"
+                                             data-location="<?php echo htmlspecialchars($item['current_location']); ?>">
                                             
                                             <div class="equipment-name"><?php echo htmlspecialchars($item['name']); ?></div>
                                             
@@ -650,9 +718,16 @@ class EquipmentViewEquipmentdashboard extends SugarView
                                                     <button class="btn btn-primary" onclick="showCheckoutModal('<?php echo $item['id']; ?>', '<?php echo htmlspecialchars($item['name']); ?>')">
                                                         <?php echo $mod_strings['LBL_CHECK_OUT']; ?>
                                                     </button>
+                                                    <button class="btn btn-warning" onclick="markForMaintenance('<?php echo $item['id']; ?>', '<?php echo htmlspecialchars($item['name']); ?>')">
+                                                        <?php echo $mod_strings['LBL_MAINTENANCE']; ?>
+                                                    </button>
                                                 <?php elseif ($item['checkout_status'] === 'checked_out'): ?>
                                                     <button class="btn btn-success" onclick="showReturnModal('<?php echo $item['id']; ?>', '<?php echo htmlspecialchars($item['name']); ?>')">
                                                         <?php echo $mod_strings['LBL_RETURN']; ?>
+                                                    </button>
+                                                <?php elseif ($item['checkout_status'] === 'maintenance'): ?>
+                                                    <button class="btn btn-success" onclick="returnFromMaintenance('<?php echo $item['id']; ?>', '<?php echo htmlspecialchars($item['name']); ?>')">
+                                                        <?php echo $mod_strings['LBL_RETURN_FROM_MAINTENANCE']; ?>
                                                     </button>
                                                 <?php endif; ?>
                                                 <button class="btn btn-secondary" onclick="showEquipmentDetails('<?php echo $item['id']; ?>')">
@@ -747,12 +822,7 @@ class EquipmentViewEquipmentdashboard extends SugarView
                                     </ul>
                                 </div>
                                 <?php endif; ?>
-                                
-                                <div class="equipment-actions">
-                                    <button class="btn btn-primary" onclick="generateDetailedReport('usage')">
-                                        Detailed Report
-                                    </button>
-                                </div>
+
                             </div>
 
                             <!-- Condition Report -->
@@ -778,12 +848,7 @@ class EquipmentViewEquipmentdashboard extends SugarView
                                         </span>
                                     </div>
                                 </div>
-                                
-                                <div class="equipment-actions">
-                                    <button class="btn btn-primary" onclick="generateDetailedReport('condition')">
-                                        Condition Report
-                                    </button>
-                                </div>
+
                             </div>
 
                             <!-- Overdue Equipment -->
@@ -810,9 +875,7 @@ class EquipmentViewEquipmentdashboard extends SugarView
                                             Send Reminders
                                         </button>
                                     <?php endif; ?>
-                                    <button class="btn btn-secondary" onclick="generateDetailedReport('overdue')">
-                                        View Details
-                                    </button>
+
                                 </div>
                             </div>
                         </div>
@@ -984,8 +1047,16 @@ class EquipmentViewEquipmentdashboard extends SugarView
                     const statusFilter = document.getElementById('status-filter').value;
                     const typeFilter = document.getElementById('type-filter').value;
                     const programFilter = document.getElementById('program-filter').value;
+                    const conditionFilter = document.getElementById('condition-filter').value;
+                    const locationFilter = document.getElementById('location-filter').value;
                     
-                    console.log('Filter values:', {status: statusFilter, type: typeFilter, program: programFilter});
+                    console.log('Filter values:', {
+                        status: statusFilter, 
+                        type: typeFilter, 
+                        program: programFilter,
+                        condition: conditionFilter,
+                        location: locationFilter
+                    });
                     
                     // Get all equipment cards
                     const equipmentCards = document.querySelectorAll('.equipment-card');
@@ -998,6 +1069,8 @@ class EquipmentViewEquipmentdashboard extends SugarView
                         const equipmentStatus = card.getAttribute('data-status') || '';
                         const equipmentType = card.getAttribute('data-type') || '';
                         const equipmentProgram = card.getAttribute('data-program') || '';
+                        const equipmentCondition = card.getAttribute('data-condition') || '';
+                        const equipmentLocation = card.getAttribute('data-location') || '';
                         
                         // Filter by status
                         if (statusFilter && statusFilter !== '') {
@@ -1020,6 +1093,20 @@ class EquipmentViewEquipmentdashboard extends SugarView
                             }
                         }
                         
+                        // Filter by condition
+                        if (conditionFilter && conditionFilter !== '') {
+                            if (equipmentCondition !== conditionFilter) {
+                                shouldShow = false;
+                            }
+                        }
+                        
+                        // Filter by location
+                        if (locationFilter && locationFilter !== '') {
+                            if (equipmentLocation !== locationFilter) {
+                                shouldShow = false;
+                            }
+                        }
+                        
                         // Show/hide the card
                         if (shouldShow) {
                             card.style.display = 'block';
@@ -1030,10 +1117,9 @@ class EquipmentViewEquipmentdashboard extends SugarView
                     });
                     
                     // Update the equipment count
-                    const countElement = document.getElementById('equipment-count-title');
+                    const countElement = document.getElementById('equipment-count');
                     if (countElement) {
-                        const baseTitle = countElement.textContent.split(' (')[0];
-                        countElement.textContent = baseTitle + ' (' + visibleCount + ')';
+                        countElement.textContent = visibleCount;
                     }
                     
                     console.log('Filter applied. Visible equipment:', visibleCount);
@@ -1047,23 +1133,24 @@ class EquipmentViewEquipmentdashboard extends SugarView
                     document.getElementById('status-filter').value = '';
                     document.getElementById('type-filter').value = '';
                     document.getElementById('program-filter').value = '';
+                    document.getElementById('condition-filter').value = '';
+                    document.getElementById('location-filter').value = '';
                     
                     // Show all equipment cards
                     const equipmentCards = document.querySelectorAll('.equipment-card');
-                    const totalCount = equipmentCards.length;
                     
                     equipmentCards.forEach(function(card) {
                         card.style.display = 'block';
                     });
                     
-                    // Update count
-                    const countElement = document.getElementById('equipment-count-title');
+                    // Restore original count (don't count DOM elements as they may include invalid cards)
+                    const countElement = document.getElementById('equipment-count');
                     if (countElement) {
-                        const baseTitle = countElement.textContent.split(' (')[0];
-                        countElement.textContent = baseTitle + ' (' + totalCount + ')';
+                        // Get the original count that was set on page load
+                        const originalCount = countElement.getAttribute('data-original-count') || '11';
+                        countElement.textContent = originalCount;
+                        console.log('Filters cleared. Original count restored:', originalCount);
                     }
-                    
-                    console.log('Filters cleared. Showing all equipment:', totalCount);
                 }
                 
                 /**
@@ -1214,6 +1301,95 @@ class EquipmentViewEquipmentdashboard extends SugarView
                 }
                 
                 /**
+                 * Mark equipment for maintenance
+                 */
+                function markForMaintenance(equipmentId, equipmentName) {
+                    if (!confirm('Mark "' + equipmentName + '" for maintenance?\n\nThis will change the status to "In Maintenance" and move it to the maintenance area.')) {
+                        return;
+                    }
+                    
+                    // Show loading state
+                    const button = event.target;
+                    const originalText = button.textContent;
+                    button.textContent = 'Processing...';
+                    button.disabled = true;
+                    
+                    // Create form data
+                    const formData = new FormData();
+                    formData.append('equipment_id', equipmentId);
+                    formData.append('action', 'mark_maintenance');
+                    formData.append('maintenance_notes', 'Marked for maintenance');
+                    
+                    // Make AJAX request to maintenance entry point
+                    fetch('index.php?entryPoint=equipment_maintenance', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message || 'Equipment marked for maintenance successfully!');
+                            location.reload(); // Refresh to show updated status
+                        } else {
+                            alert('Error: ' + (data.message || 'Failed to mark equipment for maintenance'));
+                            button.textContent = originalText;
+                            button.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Maintenance error:', error);
+                        alert('Error: Failed to mark equipment for maintenance');
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    });
+                }
+                
+                /**
+                 * Return equipment from maintenance
+                 */
+                function returnFromMaintenance(equipmentId, equipmentName) {
+                    if (!confirm('Return "' + equipmentName + '" from maintenance?\n\nThis will change the status back to "Available".')) {
+                        return;
+                    }
+                    
+                    // Show loading state
+                    const button = event.target;
+                    const originalText = button.textContent;
+                    button.textContent = 'Processing...';
+                    button.disabled = true;
+                    
+                    // Create form data
+                    const formData = new FormData();
+                    formData.append('equipment_id', equipmentId);
+                    formData.append('action', 'return_from_maintenance');
+                    formData.append('return_condition', 'good'); // Default condition
+                    formData.append('return_location', 'Equipment Storage'); // Default location
+                    
+                    // Make AJAX request to maintenance entry point
+                    fetch('index.php?entryPoint=equipment_maintenance', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message || 'Equipment returned from maintenance successfully!');
+                            location.reload(); // Refresh to show updated status
+                        } else {
+                            alert('Error: ' + (data.message || 'Failed to return equipment from maintenance'));
+                            button.textContent = originalText;
+                            button.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Return from maintenance error:', error);
+                        alert('Error: Failed to return equipment from maintenance');
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    });
+                }
+                
+                /**
                  * Send overdue notifications
                  */
                 function sendOverdueNotifications() {
@@ -1293,54 +1469,6 @@ class EquipmentViewEquipmentdashboard extends SugarView
                 }
                 
                 /**
-                 * Generate detailed report
-                 */
-                function generateDetailedReport(reportType) {
-                    const button = event.target;
-                    const originalText = button.textContent;
-                    button.textContent = 'Generating...';
-                    button.disabled = true;
-                    
-                    fetch('index.php?entryPoint=equipment_reports&type=' + reportType)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // For now, show alert with basic data
-                            // In production, this would generate a PDF or open a detailed view
-                            let message = 'Report Generated Successfully!\n\n';
-                            
-                            switch (reportType) {
-                                case 'usage':
-                                    message += 'Usage Statistics:\n';
-                                    message += '- Total Checkouts: ' + data.data.total_checkouts + '\n';
-                                    message += '- Total Returns: ' + data.data.total_returns + '\n';
-                                    break;
-                                case 'condition':
-                                    message += 'Condition Report generated\n';
-                                    break;
-                                case 'overdue':
-                                    message += 'Found ' + data.data.length + ' overdue items\n';
-                                    break;
-                            }
-                            
-                            message += '\nReport data logged to system logs.';
-                            alert(message);
-                        } else {
-                            alert('Error generating report: ' + data.message);
-                        }
-                        
-                        button.textContent = originalText;
-                        button.disabled = false;
-                    })
-                    .catch(error => {
-                        console.error('Report error:', error);
-                        alert('Error generating report');
-                        button.textContent = originalText;
-                        button.disabled = false;
-                    });
-                }
-                
-                /**
                  * Generate full report
                  */
                 function generateFullReport() {
@@ -1349,33 +1477,60 @@ class EquipmentViewEquipmentdashboard extends SugarView
                     button.textContent = 'Generating...';
                     button.disabled = true;
                     
-                    fetch('index.php?entryPoint=equipment_reports&type=all')
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Full Equipment Report Generated!\n\nReport includes:\n- Equipment Summary\n- Usage Statistics\n- Condition Reports\n- Overdue Items\n\nDetailed data has been logged to system logs.');
-                        } else {
-                            alert('Error generating full report: ' + data.message);
-                        }
+                    // Open comprehensive HTML report in new tab
+                    const reportWindow = window.open('index.php?entryPoint=equipment_full_report', '_blank');
+                    
+                    // Reset button after a short delay
+                    setTimeout(function() {
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    }, 1000);
+                    
+                    // Focus the new window if popup blocker didn't prevent it
+                    if (reportWindow) {
+                        reportWindow.focus();
+                    } else {
+                        alert('Please allow popups for this site to view the full report, or try again.');
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    }
+                }
+                
+                /**
+                 * Export equipment data to CSV
+                 */
+                function exportEquipmentData() {
+                    const button = event.target;
+                    const originalText = button.textContent;
+                    button.textContent = 'Exporting...';
+                    button.disabled = true;
+                    
+                    fetch('index.php?entryPoint=equipment_reports&type=all&format=csv')
+                    .then(response => response.blob())
+                    .then(blob => {
+                        // Create download link
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = 'equipment_data_' + new Date().toISOString().split('T')[0] + '.csv';
                         
+                        // Trigger download
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                        
+                        // Reset button
                         button.textContent = originalText;
                         button.disabled = false;
                     })
                     .catch(error => {
-                        console.error('Full report error:', error);
-                        alert('Error generating full report');
+                        console.error('Export error:', error);
+                        alert('Error exporting data. Please try the Full Report button for comprehensive data.');
                         button.textContent = originalText;
                         button.disabled = false;
                     });
-                }
-                
-                /**
-                 * Export equipment data (placeholder)
-                 */
-                function exportEquipmentData() {
-                    // For now, show a message
-                    // In production, this would generate CSV/Excel export
-                    alert('Export functionality coming soon!\n\nThis feature will export equipment data to CSV/Excel format.');
                 }
                 
                 /**

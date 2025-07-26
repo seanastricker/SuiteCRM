@@ -250,6 +250,98 @@ class EquipmentHelper
     }
     
     /**
+     * Mark equipment for maintenance
+     */
+    public static function markForMaintenance($equipment_id, $maintenance_data = array())
+    {
+        try {
+            $equipment = BeanFactory::getBean('Equipment', $equipment_id);
+            if (!$equipment || !$equipment->id) {
+                return array('success' => false, 'message' => 'Equipment not found');
+            }
+            
+            // Validate equipment is available for maintenance
+            if ($equipment->checkout_status === 'checked_out') {
+                return array('success' => false, 'message' => 'Cannot mark checked out equipment for maintenance. Please return it first.');
+            }
+            
+            if ($equipment->checkout_status === 'maintenance') {
+                return array('success' => false, 'message' => 'Equipment is already marked for maintenance');
+            }
+            
+            // Update equipment record
+            $equipment->checkout_status = 'maintenance';
+            $equipment->current_location = 'Maintenance Area';
+            
+            // Store maintenance info in description field for now
+            if (!empty($maintenance_data['maintenance_notes'])) {
+                $equipment->description = 'MAINTENANCE: ' . $maintenance_data['maintenance_notes'] . ' (Started: ' . date('Y-m-d H:i:s') . ')';
+            } else {
+                $equipment->description = 'MAINTENANCE: Marked for maintenance on ' . date('Y-m-d H:i:s');
+            }
+            
+            // Clear any checkout information
+            $equipment->checked_out_by = '';
+            $equipment->checkout_notes = '';
+            $equipment->due_date = '';
+            
+            $equipment->save();
+            
+            // Log the maintenance action
+            self::logEquipmentTransaction($equipment_id, 'mark_maintenance', $maintenance_data);
+            
+            return array('success' => true, 'message' => 'Equipment marked for maintenance successfully');
+            
+        } catch (Exception $e) {
+            error_log("Error marking equipment for maintenance: " . $e->getMessage());
+            return array('success' => false, 'message' => 'Error marking equipment for maintenance: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Return equipment from maintenance
+     */
+    public static function returnFromMaintenance($equipment_id, $return_data = array())
+    {
+        try {
+            $equipment = BeanFactory::getBean('Equipment', $equipment_id);
+            if (!$equipment || !$equipment->id) {
+                return array('success' => false, 'message' => 'Equipment not found');
+            }
+            
+            // Validate equipment is in maintenance
+            if ($equipment->checkout_status !== 'maintenance') {
+                return array('success' => false, 'message' => 'Equipment is not currently in maintenance');
+            }
+            
+            // Update equipment record
+            $equipment->checkout_status = 'available';
+            $equipment->current_location = $return_data['current_location'] ?? 'Equipment Storage';
+            
+            // Update condition if provided
+            if (!empty($return_data['condition_status'])) {
+                $equipment->condition_status = $return_data['condition_status'];
+            }
+            
+            // Clear maintenance info from description
+            if (strpos($equipment->description, 'MAINTENANCE:') === 0) {
+                $equipment->description = 'Returned from maintenance on ' . date('Y-m-d H:i:s');
+            }
+            
+            $equipment->save();
+            
+            // Log the return from maintenance
+            self::logEquipmentTransaction($equipment_id, 'return_from_maintenance', $return_data);
+            
+            return array('success' => true, 'message' => 'Equipment returned from maintenance successfully');
+            
+        } catch (Exception $e) {
+            error_log("Error returning equipment from maintenance: " . $e->getMessage());
+            return array('success' => false, 'message' => 'Error returning equipment from maintenance: ' . $e->getMessage());
+        }
+    }
+    
+    /**
      * Get overdue equipment
      */
     public static function getOverdueEquipment()
@@ -505,6 +597,18 @@ class EquipmentHelper
                         'count' => (int)$row['checkout_count']
                     );
                 }
+            }
+            
+            // Calculate average checkout duration for returned items
+            $query = "SELECT AVG(DATEDIFF(return_date, checkout_date)) as avg_duration 
+                     FROM equipment 
+                     WHERE deleted = 0 
+                     AND checkout_date >= '$period_start'
+                     AND return_date IS NOT NULL 
+                     AND return_date != ''";
+            $result = $db->query($query);
+            if ($result && $row = $db->fetchByAssoc($result)) {
+                $stats['average_checkout_duration'] = round($row['avg_duration'] ?? 0, 1);
             }
             
         } catch (Exception $e) {
