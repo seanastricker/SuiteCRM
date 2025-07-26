@@ -1,0 +1,85 @@
+<?php
+
+/**
+ * Equipment Module - EditView Controller
+ * 
+ * Handles the standard SuiteCRM EditView for creating/editing equipment.
+ */
+
+if (!defined('sugarEntry') || !sugarEntry) {
+    die('Not A Valid Entry Point');
+}
+
+require_once('include/MVC/View/views/view.edit.php');
+
+/**
+ * Equipment EditView class
+ */
+class EquipmentViewEdit extends ViewEdit
+{
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Pre-display setup
+     */
+    public function preDisplay()
+    {
+        parent::preDisplay();
+        
+        // Add custom JavaScript for field interactions
+        echo '<script type="text/javascript">
+            document.addEventListener("DOMContentLoaded", function() {
+                // Auto-fill current location when status changes
+                var statusField = document.getElementById("checkout_status");
+                var locationField = document.getElementById("current_location");
+                
+                if (statusField && locationField) {
+                    statusField.addEventListener("change", function() {
+                        if (this.value === "available" && locationField.value === "") {
+                            locationField.value = "Equipment Storage";
+                        } else if (this.value === "checked_out" && locationField.value === "Equipment Storage") {
+                            locationField.value = "Checked Out";
+                        }
+                    });
+                }
+                
+                // Set default condition status
+                var conditionField = document.getElementById("condition_status");
+                if (conditionField && conditionField.value === "") {
+                    conditionField.value = "good";
+                }
+            });
+        </script>';
+    }
+
+    /**
+     * Display the EditView
+     */
+    public function display()
+    {
+        global $mod_strings;
+        
+        // Set default values for new records
+        if (empty($this->bean->id)) {
+            $this->bean->checkout_status = 'available';
+            $this->bean->condition_status = 'good';
+            $this->bean->current_location = 'Equipment Storage';
+        }
+        
+        // Set page title
+        $this->ss->assign('MOD', $mod_strings);
+        if (empty($this->bean->id)) {
+            $this->ss->assign('MODULE_TITLE', $mod_strings['LBL_CREATE_EQUIPMENT']);
+        } else {
+            $this->ss->assign('MODULE_TITLE', $mod_strings['LBL_EDIT_EQUIPMENT']);
+        }
+        
+        parent::display();
+    }
+} 

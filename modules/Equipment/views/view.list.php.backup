@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * Equipment Module - ListView Controller
+ * 
+ * Handles the standard SuiteCRM ListView for equipment management.
+ */
+
+if (!defined('sugarEntry') || !sugarEntry) {
+    die('Not A Valid Entry Point');
+}
+
+require_once('include/MVC/View/views/view.list.php');
+
+/**
+ * Equipment ListView class
+ */
+class EquipmentViewList extends ViewList
+{
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Pre-display setup
+     */
+    public function preDisplay()
+    {
+        parent::preDisplay();
+        
+        // Add custom CSS for equipment list
+        echo '<style>
+            .equipment-status-available { color: #28a745; font-weight: bold; }
+            .equipment-status-checked_out { color: #dc3545; font-weight: bold; }
+            .equipment-status-maintenance { color: #ffc107; font-weight: bold; }
+            .equipment-overdue { background-color: #fff3cd; }
+        </style>';
+    }
+
+    /**
+     * Display the ListView
+     */
+    public function display()
+    {
+        // Set page title
+        global $mod_strings;
+        $this->ss->assign('MOD', $mod_strings);
+        $this->ss->assign('MODULE_TITLE', $mod_strings['LBL_EQUIPMENT_LIST']);
+        
+        parent::display();
+    }
+} 

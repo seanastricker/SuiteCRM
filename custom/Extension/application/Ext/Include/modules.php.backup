@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * Equipment Module Registration
+ * 
+ * Registers the Equipment module in SuiteCRM's module system.
+ */
+
+if (!defined('sugarEntry') || !sugarEntry) {
+    die('Not A Valid Entry Point');
+}
+
+// Register Equipment module
+$moduleList[] = 'Equipment';
+$beanList['Equipment'] = 'Equipment';
+$beanFiles['Equipment'] = 'modules/Equipment/Equipment.php';
+
+// Module metadata
+$modInvisList[] = 'Equipment'; 

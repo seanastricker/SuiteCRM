@@ -1,7 +1,4 @@
-<?php 
- //WARNING: The contents of this file are auto-generated
-
-
+<?php
 
 /**
  * Equipment Entry Points Registration
@@ -95,75 +92,3 @@ $entry_point_registry['force_equipment_save'] = array(
     'file' => 'custom/force_equipment_save.php',
     'auth' => true,
 ); 
-
-/**
- * Entry Point Registration for Feature 3: Quick Incident Reporting
- * 
- * Registers the incident_reporting entry point to make the dashboard accessible
- * via: index.php?entryPoint=incident_reporting
- */
-
-$entry_point_registry['incident_reporting'] = array(
-    'file' => 'custom/incident_reporting_dashboard.php',
-    'auth' => true,
-); 
-
-/**
- * Entry Point Registration for Feature 4: Basic Parent Notification System
- * 
- * Registers the parent_communication entry point to make the dashboard accessible
- * via: index.php?entryPoint=parent_communication
- */
-
-$entry_point_registry['parent_communication'] = array(
-    'file' => 'custom/parent_communication_dashboard.php',
-    'auth' => true,
-); 
-
-/**
- * Feature 3: Basic Incident Reporting
- * Entry point registration for incident saving
- */
-
-if (!defined('sugarEntry') || !sugarEntry) {
-    die('Not A Valid Entry Point');
-}
-
-$entry_point_registry['save_incident'] = array(
-    'file' => 'custom/save_incident.php',
-    'auth' => true,
-); 
-
-/**
- * Feature 4: Basic Parent Notification System
- * Entry point registration for parent email sending
- */
-
-if (!defined('sugarEntry') || !sugarEntry) {
-    die('Not A Valid Entry Point');
-}
-
-$entry_point_registry['send_parent_email'] = array(
-    'file' => 'custom/send_parent_email.php',
-    'auth' => true,
-); 
-
-/**
- * Volunteer Matching Dashboard Entry Point Registration
- * 
- * This registers a custom entry point for accessing the volunteer
- * matching dashboard directly via URL.
- * 
- * @package SuiteCRM
- * @subpackage YouthSportsLeague
- */
-
-if (!defined('sugarEntry') || !sugarEntry) {
-    die('Not A Valid Entry Point');
-}
-
-$entry_point_registry['volunteer_matching'] = array(
-    'file' => 'custom/volunteer_matching_dashboard.php',
-    'auth' => true,
-); 
-?>

@@ -1,0 +1,42 @@
+<?php
+
+/**
+ * Equipment Module - Global Navigation Links
+ * 
+ * Adds Equipment module to the main SuiteCRM navigation menu.
+ */
+
+if (!defined('sugarEntry') || !sugarEntry) {
+    die('Not A Valid Entry Point');
+}
+
+// Add Equipment to main navigation
+$global_control_links['equipment'] = array(
+    'linkinfo' => array(
+        'module' => 'Equipment',
+        'action' => 'index'
+    ),
+    'submenu' => array(
+        array(
+            'linkinfo' => array(
+                'module' => 'Equipment',
+                'action' => 'index'
+            ),
+            'label' => 'LBL_LIST_EQUIPMENT'
+        ),
+        array(
+            'linkinfo' => array(
+                'module' => 'Equipment', 
+                'action' => 'EditView'
+            ),
+            'label' => 'LBL_CREATE_EQUIPMENT'
+        ),
+        array(
+            'linkinfo' => array(
+                'module' => 'Equipment',
+                'action' => 'equipmentdashboard'
+            ),
+            'label' => 'LBL_EQUIPMENT_DASHBOARD'
+        )
+    )
+); 

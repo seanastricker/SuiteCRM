@@ -1,0 +1,147 @@
+<?php
+
+/**
+ * Equipment Module - DetailView Controller
+ * 
+ * Handles the standard SuiteCRM DetailView for viewing equipment details.
+ */
+
+if (!defined('sugarEntry') || !sugarEntry) {
+    die('Not A Valid Entry Point');
+}
+
+require_once('include/MVC/View/views/view.detail.php');
+
+/**
+ * Equipment DetailView class
+ */
+class EquipmentViewDetail extends ViewDetail
+{
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Pre-display setup
+     */
+    public function preDisplay()
+    {
+        parent::preDisplay();
+        
+        // Add custom CSS for status highlighting
+        echo '<style>
+            .equipment-status-available { 
+                background-color: #d4edda; 
+                color: #155724; 
+                padding: 4px 8px; 
+                border-radius: 4px; 
+                font-weight: bold; 
+            }
+            .equipment-status-checked_out { 
+                background-color: #f8d7da; 
+                color: #721c24; 
+                padding: 4px 8px; 
+                border-radius: 4px; 
+                font-weight: bold; 
+            }
+            .equipment-status-maintenance { 
+                background-color: #fff3cd; 
+                color: #856404; 
+                padding: 4px 8px; 
+                border-radius: 4px; 
+                font-weight: bold; 
+            }
+            .equipment-overdue { 
+                background-color: #f8d7da; 
+                border: 2px solid #dc3545; 
+                padding: 10px; 
+                border-radius: 5px; 
+                margin: 10px 0; 
+            }
+            .equipment-actions {
+                margin: 15px 0;
+                padding: 10px;
+                background-color: #f8f9fa;
+                border-radius: 5px;
+            }
+            .equipment-actions button {
+                margin-right: 10px;
+                padding: 8px 16px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+            }
+            .btn-checkout { background-color: #007bff; color: white; }
+            .btn-return { background-color: #28a745; color: white; }
+            .btn-maintenance { background-color: #ffc107; color: black; }
+        </style>';
+    }
+
+    /**
+     * Display the DetailView
+     */
+    public function display()
+    {
+        global $mod_strings;
+        
+        // Check if equipment is overdue
+        $is_overdue = false;
+        if ($this->bean->checkout_status === 'checked_out' && !empty($this->bean->due_date)) {
+            $due_date = new DateTime($this->bean->due_date);
+            $today = new DateTime();
+            $is_overdue = $due_date < $today;
+        }
+        
+        // Add overdue warning
+        if ($is_overdue) {
+            echo '<div class="equipment-overdue">';
+            echo '<strong>⚠️ OVERDUE:</strong> This equipment was due back on ' . $this->bean->due_date;
+            if (!empty($this->bean->checked_out_by)) {
+                echo ' (checked out by: ' . htmlspecialchars($this->bean->checked_out_by) . ')';
+            }
+            echo '</div>';
+        }
+        
+        // Set page title
+        $this->ss->assign('MOD', $mod_strings);
+        $this->ss->assign('MODULE_TITLE', $mod_strings['LBL_VIEW_EQUIPMENT'] . ': ' . $this->bean->name);
+        
+        parent::display();
+        
+        // Add action buttons after the detail view
+        echo '<div class="equipment-actions">';
+        echo '<h4>Equipment Actions:</h4>';
+        
+        if ($this->bean->checkout_status === 'available') {
+            echo '<button class="btn-checkout" onclick="checkoutEquipment(\'' . $this->bean->id . '\')">Check Out Equipment</button>';
+        } elseif ($this->bean->checkout_status === 'checked_out') {
+            echo '<button class="btn-return" onclick="returnEquipment(\'' . $this->bean->id . '\')">Return Equipment</button>';
+        }
+        
+        echo '<button class="btn-maintenance" onclick="maintenanceEquipment(\'' . $this->bean->id . '\')">Mark for Maintenance</button>';
+        echo '<a href="index.php?module=Equipment&action=equipmentdashboard" style="text-decoration: none;">';
+        echo '<button style="background-color: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">📊 Equipment Dashboard</button>';
+        echo '</a>';
+        echo '</div>';
+        
+        // Add JavaScript for action buttons
+        echo '<script>
+            function checkoutEquipment(id) {
+                window.location.href = "index.php?module=Equipment&action=equipmentdashboard&checkout=" + id;
+            }
+            function returnEquipment(id) {
+                window.location.href = "index.php?module=Equipment&action=equipmentdashboard&return=" + id;
+            }
+            function maintenanceEquipment(id) {
+                if (confirm("Mark this equipment for maintenance?")) {
+                    window.location.href = "index.php?module=Equipment&action=EditView&record=" + id + "&maintenance=1";
+                }
+            }
+        </script>';
+    }
+} 
