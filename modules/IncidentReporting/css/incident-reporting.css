@@ -1,0 +1,74 @@
+/**
+ * Feature 3: Basic Incident Reporting
+ * CSS styles for the IncidentReporting module
+ */
+
+.incident-reporting-dashboard {
+    margin: 20px 0;
+}
+
+.incident-stats {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.incident-form-container {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.incident-card {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: white;
+    transition: box-shadow 0.2s;
+}
+
+.incident-card:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.severity-critical { border-left: 4px solid #dc3545; }
+.severity-high { border-left: 4px solid #fd7e14; }
+.severity-medium { border-left: 4px solid #ffc107; }
+.severity-low { border-left: 4px solid #28a745; }
+
+.incident-meta {
+    font-size: 12px;
+    color: #666;
+    margin-top: 10px;
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 10px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+}
+
+.stat-number {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+} 

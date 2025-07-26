@@ -27,6 +27,20 @@ $entry_point_registry['parent_communication'] = array(
 ); 
 
 /**
+ * Feature 3: Basic Incident Reporting
+ * Entry point registration for incident saving
+ */
+
+if (!defined('sugarEntry') || !sugarEntry) {
+    die('Not A Valid Entry Point');
+}
+
+$entry_point_registry['save_incident'] = array(
+    'file' => 'custom/save_incident.php',
+    'auth' => true,
+); 
+
+/**
  * Volunteer Matching Dashboard Entry Point Registration
  * 
  * This registers a custom entry point for accessing the volunteer
