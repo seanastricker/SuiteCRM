@@ -164,6 +164,20 @@ $entry_point_registry['send_parent_email'] = array(
 ); 
 
 /**
+ * Feature 6: Volunteer Hours & Recognition Tracker
+ * Entry Point Registration for Volunteer Hours Dashboard
+ */
+
+if (!defined('sugarEntry') || !sugarEntry) {
+    die('Not A Valid Entry Point');
+}
+
+$entry_point_registry['volunteer_hours_dashboard'] = array(
+    'file' => 'custom/volunteer_hours_dashboard.php',
+    'auth' => true,
+); 
+
+/**
  * Volunteer Matching Dashboard Entry Point Registration
  * 
  * This registers a custom entry point for accessing the volunteer
